@@ -97,12 +97,12 @@ module bp_wormhole_to_burst
      ,.v_i(hdr_v_li)
      ,.ready_and_o(hdr_ready_lo)
 
-     ,.data_o(hdr_o)
-     ,.v_o(hdr_v_o)
-     ,.ready_and_i(hdr_ready_and_i)
+     ,.data_o(pr_hdr_o)
+     ,.v_o(pr_hdr_v_o)
+     ,.ready_and_i(pr_hdr_ready_and_i)
      );
 
-  assign has_data_o = hdr_v_o & wh_has_data;
+  assign has_data_o = pr_hdr_v_o & wh_has_data;
 
   logic data_v_li, data_ready_lo;
   assign data_v_li = is_data & link_v_i;
@@ -113,6 +113,9 @@ module bp_wormhole_to_burst
       // flit_width_p > pr_data_width_p -> multiple protocol data per link flit
       // and it is possible that last link flit is not completely filled with valid
       // protocol data.
+
+      // TODO: this module would be greatly simplified if enforced
+      // flit_width_p <= pr_data_width_p. Would remove need for pr_data_beats_i.
 
       // number of protocol data per full link flit
       localparam [len_width_p-1:0] max_els_lp = `BSG_CDIV(flit_width_p, pr_data_width_p);
@@ -137,9 +140,9 @@ module bp_wormhole_to_burst
        pr_data_counter
         (.clk_i(clk_i)
          ,.reset_i(reset_i)
-         ,.set_i(hdr_v_o & hdr_ready_and_i)
+         ,.set_i(pr_hdr_v_o & pr_hdr_ready_and_i)
          ,.val_i(pr_data_beats_i)
-         ,.down_i(data_v_o & data_ready_and_i & ~pr_data_consumed)
+         ,.down_i(pr_data_v_o & pr_data_ready_and_i & ~pr_data_consumed)
          ,.count_r_o(pr_data_cnt)
          );
 
@@ -160,9 +163,9 @@ module bp_wormhole_to_burst
          ,.v_i(data_v_li)
          ,.ready_and_o(data_ready_lo)
 
-         ,.data_o(data_o)
-         ,.v_o(data_v_o)
-         ,.ready_and_i(data_ready_and_i)
+         ,.data_o(pr_data_o)
+         ,.v_o(pr_data_v_o)
+         ,.ready_and_i(pr_data_ready_and_i)
 
          ,.first_o(piso_first_lo)
          // must be presented when ready_and_i & first_o
@@ -192,9 +195,9 @@ module bp_wormhole_to_burst
          ,.v_i(data_v_li)
          ,.ready_and_o(data_ready_lo)
 
-         ,.data_o(data_o)
-         ,.v_o(data_v_o)
-         ,.ready_and_i(data_ready_and_i)
+         ,.data_o(pr_data_o)
+         ,.v_o(pr_data_v_o)
+         ,.ready_and_i(pr_data_ready_and_i)
          );
       // passthrough sipo does not buffer last data element, so when wormhole stream
       // control indicates last flit, sipo will be outputting last burst data beat
