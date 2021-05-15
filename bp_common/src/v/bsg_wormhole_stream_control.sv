@@ -1,13 +1,9 @@
 /**
  *
  * Name:
- *   bp_wormhole_to_burst.sv
+ *   bp_wormhole_stream_control.sv
  *
  * Description:
- *   Converts a wormhole router stream to BedRock Burst protocol without
- *   deserializing the data.
- *
- *
  *   Handles flow control for a bsg_wormhole packet. Given a length of
  *   wormhole packet and a begin transaction signal, this module tracks which
  *   flits are header flits and which are data flits.
