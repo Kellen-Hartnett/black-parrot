@@ -6,7 +6,8 @@
  * and ready_and_o are early.
  *
  * The last_i signal must be raised early with v_i when the last serial word
- * is available on the input.
+ * is available on the input and the input will not fill the SIPO (i.e., less
+ * than max_els_p are being deserialized to the parallel output).
  *
  * If max_els_p == 1 then this module simply passes through the signals.
  * Otherwise, the output becomes valid in the cycle that the last input
@@ -103,8 +104,9 @@ module bsg_serial_in_parallel_out_passthrough_dynamic_last
 
     // data becomes valid when last_i is raised as last word is simply passed
     // through directly to output or when the last word has been captured into
-    // the data_dff if the input message has fewer than max_els_p words
-    assign v_o = last_i | last_r;
+    // the data_dff if the input message has fewer than max_els_p words.
+    // v_o is also raised if last element is valid on input
+    assign v_o = last_i | last_r | (v_i & data_en_li[max_els_p-1]);
 
     // For messages with max_els_p input words unit is always ready until
     // reaching the last input word, indicated by the highest bit of
